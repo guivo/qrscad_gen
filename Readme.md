@@ -56,15 +56,13 @@ the [OpenSCAD Customizer](https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Cus
 
 Through the customizer it is possible to control the follwing parameters:
 
-* **BaseSize**: controls the thickness of the base layer and the QR code layer.
+* **TileThick**: controls the thickness of the base tile layer.
+* **CodeThick**: controls the thickness of the QR code layer.
 * **BlockSize**: the QR code is composed by cubes, or blocks, thi parameters control
     the XY size, in mm, of each block. This parameter also controls the size of the 
-    tile where the QR code is places.
-* **nElements**: allow to change the number elements copmosing the tile, in X and Y
-    direction. By defualt is equal to the number of elements required by the code
-    adding 2, allowing a 1 block minimal frame around the QR code. Increasing this
-    value allows to increas the frame, combining the change with the Offset parameters.
-* **Offset**: allow to change the starting point of the QR code from the top/left corner.
+    tile below the QR code.
+* **Frame**: frame surrounding the QR code, as number of equivalent blocks.
 
-***Warning** there are no checks to validate the model, if in example the nElements is
-too small and produce a bad model there are currently no warnings.
+***Warning** if impossible values are set in the Customizer the solid can be broken.
+A Block size too small can result in difficult prints, choose this value
+according the nozzle size.
