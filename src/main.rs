@@ -17,32 +17,33 @@ fn save_scad(outpath: String, qrcode: &QrCode, content: &String) {
     // Print the SCAD file header
     scadfile
         .write_fmt(format_args!(
-            "//Thickness (mm) of the base and QRCode part
-BaseSize = 2.0; // .2
+            "//Thickness (mm) of the tile layer
+TileThick = 2.0; // .2
+//Thickness (mm) of QRCode layer
+CodeThick = 2.0; // .2
 //Unitary size (mm) of the QRCode blocks
 BlockSize = 2.0; // .2
-// Number of blocks for the bottom box
-nElements = {};
-// Offset
-Offset = 0;
+// Fame size
+Frame = 1;
 
-// QR Content: {}\n\n",
-            width + 2,
-            content
+// QR Content: {}\n\n
+
+nElements = {}+Frame*2; //Tile width\n\n ",
+            content, width
         ))
         .unwrap();
 
     let mut ix = 0usize;
     let mut iy = 0usize;
 
-    scadfile.write_all(b"color(\"white\") translate([0,-nElements*BlockSize,0]) cube([nElements*BlockSize, nElements*BlockSize, BaseSize]);\n").unwrap();
+    scadfile.write_all(b"color(\"white\") translate([0,-nElements*BlockSize,0]) cube([nElements*BlockSize, nElements*BlockSize, TileThick]);\n").unwrap();
 
     // write the header file
     scadfile.write_all(b"color(\"black\") {\n").unwrap();
     let elems = qrcode.to_vec();
     for val in elems {
         if val {
-            scadfile.write_fmt(format_args!("  translate([({}+Offset)*BlockSize, -({}+Offset+1)*BlockSize, BaseSize]) cube([BlockSize, BlockSize, BaseSize]);\n", ix+1, iy+1)).unwrap();
+            scadfile.write_fmt(format_args!("  translate([({}+Frame)*BlockSize, -({}+Frame+1)*BlockSize, TileThick]) cube([BlockSize, BlockSize, CodeThick]);\n", ix, iy)).unwrap();
         }
         ix += 1;
         if ix == width {
