@@ -1,17 +1,34 @@
 use std::{fs::File, io::Write, path::Path};
 
+use clap::Parser;
 use qr_code::QrCode;
 
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about=None)]
+struct Args {
+    // Text content to be code in the QR
+    #[clap(short, long, value_parser)]
+    text: String,
+
+    // Output file path
+    #[clap(short, long, value_parser, default_value = "qrcode.scad")]
+    outfile: String,
+}
+
 fn main() {
-    let content = "Puppa!";
+    let args = Args::parse();
+
+    let content = args.text;
+    let outpath = args.outfile;
+
     let qrcode = QrCode::new(content.as_bytes()).unwrap();
 
     let width = qrcode.width();
-    println!("Code size={}", width);
+    println!("QR Code size={}", width);
 
     let elems = qrcode.to_vec();
 
-    let scadpath = Path::new("qrcode.scad");
+    let scadpath = Path::new(outpath.as_str());
     let display = scadpath.display();
 
     let mut scadfile = match File::create(&scadpath) {
