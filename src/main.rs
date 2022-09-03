@@ -54,7 +54,7 @@ nElements = {}+Frame*2; //Tile width\n\n ",
     // write the header file
     scadfile.write_all(b"color(\"black\") {
 if (len(Note)>0) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) text(Note, FontSize, halign=\"center\");
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) linear_extrude(CodeThick) text(Note, FontSize, halign=\"center\");
 }\n").unwrap();
     let elems = qrcode.to_vec();
     for val in elems {
