@@ -25,8 +25,16 @@ CodeThick = 2.0; // .2
 BlockSize = 2.0; // .2
 // Fame size
 Frame = 1;
+// Text note added to the tile, if empty ignored
+Note = \"\";
+// Height of the note area
+NoteH = 10;
+// Offset for the text
+NoteOff = 3;
+// Note text size
+FontSize = 6;
 
-// QR Content: {}\n\n
+/* QR Content: {}*/\n\n
 
 nElements = {}+Frame*2; //Tile width\n\n ",
             content, width
@@ -36,10 +44,18 @@ nElements = {}+Frame*2; //Tile width\n\n ",
     let mut ix = 0usize;
     let mut iy = 0usize;
 
-    scadfile.write_all(b"color(\"white\") translate([0,-nElements*BlockSize,0]) cube([nElements*BlockSize, nElements*BlockSize, TileThick]);\n").unwrap();
+    scadfile.write_all(b"color(\"white\") {
+    if (len(Note)>0) {
+        translate([0,-nElements*BlockSize-10,0]) cube([nElements*BlockSize, NoteH, TileThick]);
+    }
+    translate([0,-nElements*BlockSize,0]) cube([nElements*BlockSize, nElements*BlockSize, TileThick]);
+}\n").unwrap();
 
     // write the header file
-    scadfile.write_all(b"color(\"black\") {\n").unwrap();
+    scadfile.write_all(b"color(\"black\") {
+if (len(Note)>0) {
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) text(Note, FontSize, halign=\"center\");
+}\n").unwrap();
     let elems = qrcode.to_vec();
     for val in elems {
         if val {
