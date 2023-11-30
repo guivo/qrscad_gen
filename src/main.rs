@@ -1,4 +1,4 @@
-use std::{fs::File, io::Write, path::Path};
+use std::{fs::{File, self}, io::Write, path::Path};
 
 use clap::Parser;
 use qr_code::QrCode;
@@ -100,12 +100,16 @@ if (len(Note)>0) {
 #[clap(author, version, about, long_about=None)]
 struct Args {
     // Text content to be code in the QR
-    #[clap(short, long, value_parser)]
+    #[clap(short, long, value_parser, default_value="")]
     text: String,
+
+    // input file, used if the text is not used
+    #[clap(short, long, value_parser, default_value="")]
+    input: String,
 
     // Output file path
     #[clap(short, long, value_parser, default_value = "qrcode.scad")]
-    outfile: String,
+    output: String,
 }
 
 /**
@@ -114,11 +118,20 @@ struct Args {
 fn main() {
     // parse the command line options
     let args = Args::parse();
-
+    
     // textual content
-    let content = args.text; 
+    let content; 
+
+    if args.input.len()>0 {
+        content = fs::read_to_string(args.input).unwrap();
+    } else if  args.text.len()>0 {
+        content =  args.text;
+    } else {
+        content = String::from("This is a test!");
+    }
+
     // path of the SCAD file
-    let outpath = args.outfile;
+    let outpath = args.output;
 
     // generate the QR code
     //TODO: check for errors
