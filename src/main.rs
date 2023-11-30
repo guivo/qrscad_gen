@@ -37,8 +37,14 @@ CodeThick = 2.0; // .2
 BlockSize = 2.0; // .2
 // Fame size
 Frame = 1;
-// Text note added to the tile, if empty ignored
-Note = \"\";
+// Has not
+hasNote = false;
+// Line 1
+Line1 = \"\";
+// Line 2
+Line2 = \"\";
+// Line 3
+Line3 = \"\";
 // Height of the note area
 NoteH = 10;
 // Offset for the text
@@ -60,16 +66,29 @@ nElements = {}+Frame*2; //Tile width\n\n ",
     // block associated with the tile layer, supporting the QR code
     scadfile.write_all(b"color(\"white\") {
     translate([0,-nElements*BlockSize,0]) cube([nElements*BlockSize, nElements*BlockSize, TileThick]);
-    if (len(Note)>0) {
-        translate([0,-nElements*BlockSize-10,0]) cube([nElements*BlockSize, NoteH, TileThick]);
+    if (hasNote) {
+        h1 = len(Line1)>0 ? NoteH : 0;
+        h2 = len(Line2)>0 ? NoteH : 0;
+        h3 = len(Line3)>0 ? NoteH : 0;
+        
+        totH = h1+h2+h3;
+
+        translate([0,-nElements*BlockSize-totH,0]) cube([nElements*BlockSize, totH, TileThick]);
     }
 }\n").unwrap();
 
     // prepare the block of the file associated with the QR code
     scadfile.write_all(b"color(\"black\") {
-if (len(Note)>0) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) linear_extrude(CodeThick) text(Note, FontSize, halign=\"center\");
+if (len(Line1)>0) {
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line1, FontSize, halign=\"center\");
 }\n").unwrap();
+    scadfile.write_all(b"if (len(Line2)>0) {
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*2+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line2, FontSize, halign=\"center\");
+}\n").unwrap();
+    scadfile.write_all(b"if (len(Line3)>0) {
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*3+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line3, FontSize, halign=\"center\");
+}\n").unwrap();
+
     let elems = qrcode.to_vec();
     for val in elems {
         if val {

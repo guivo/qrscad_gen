@@ -154,7 +154,7 @@ checksum = "43d2564aae5faaf3acb512b35b8bcb9a298d9d8c72d181c598691d800ee78a00"
 
 [[package]]
 name = "qrscad_gen"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "qr_code",
