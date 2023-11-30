@@ -17,7 +17,20 @@ As quick reference, once downladed, the code can be launched the folowing syntax
 cargo run  -- --text "QR tex content" -o qrscad.scad
 ```
 
-if the tool is installed in the system the previous syntax can be replaced by:
+It is possible to build an executable running:
+```sh
+cargo build
+```
+
+in this card the `qrscad_gen` executable will be created in the project directory.
+It is optionally possible to install it using:
+
+```sh
+cargo install
+```
+
+if the tool is installed in the system the previous syntax can be used from
+anywhere in the system:
 
 ```sh
 qrscad_gen --text "QR tex content" -o qrscad.scad
@@ -25,9 +38,12 @@ qrscad_gen --text "QR tex content" -o qrscad.scad
 
 The available options are:
 
-* **outfile**: allow to specify the output OpenSCAD file, default ***qrcode.scad***.
+* **output**: allow to specify the output OpenSCAD file, default ***qrcode.scad***.
+* **input**: input text file with the QR code content, if missing the **text** option
+    is expected.
 * **text**: is the textual content. If standard code is desired, e.g. WIFI, URL or more,
-    the syntax should be manually formatted to encode the wanted message.
+    the syntax should be manually formatted to encode the wanted message. Read if the
+    **input** option is missing.
 * **help**: use this for more options, not documented in this file.
 
 The generated QR code use a **medium** error recovery encoding, fixed within the code,
