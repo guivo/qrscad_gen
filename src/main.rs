@@ -49,6 +49,8 @@ Line3 = \"\";
 NoteH = 10;
 // Offset for the text
 NoteOff = 3;
+// Font type
+FontType = \"Segoe UI:style=Bold\";
 // Note text size
 FontSize = 6;
 
@@ -79,14 +81,14 @@ nElements = {}+Frame*2; //Tile width\n\n ",
 
     // prepare the block of the file associated with the QR code
     scadfile.write_all(b"color(\"black\") {
-if (len(Line1)>0) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line1, FontSize, halign=\"center\");
+if (len(Line1)>0 && hasNote) {
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line1, FontSize, FontType, halign=\"center\");
 }\n").unwrap();
-    scadfile.write_all(b"if (len(Line2)>0) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*2+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line2, FontSize, halign=\"center\");
+    scadfile.write_all(b"if (len(Line2)>0 && hasNote) {
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*2+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line2, FontSize, FontType, halign=\"center\");
 }\n").unwrap();
-    scadfile.write_all(b"if (len(Line3)>0) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*3+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line3, FontSize, halign=\"center\");
+    scadfile.write_all(b"if (len(Line3)>0 && hasNote) {
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*3+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line3, FontSize, FontType, halign=\"center\");
 }\n").unwrap();
 
     let elems = qrcode.to_vec();
