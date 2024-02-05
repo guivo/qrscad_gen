@@ -3,6 +3,8 @@ use std::{fs::{File, self}, io::Write, path::Path};
 use clap::Parser;
 use qr_code::QrCode;
 
+mod clustering;
+
 /**
  * Save the content of the QR code associated to the
  * given content into a SCAD file.
@@ -61,10 +63,6 @@ nElements = {}+Frame*2; //Tile width\n\n ",
         ))
         .unwrap();
 
-    // index used to monitor the position in the output grid
-    let mut ix = 0usize;
-    let mut iy = 0usize;
-
     // block associated with the tile layer, supporting the QR code
     scadfile.write_all(b"color(\"white\") {
     translate([0,-nElements*BlockSize,0]) cube([nElements*BlockSize, nElements*BlockSize, TileThick]);
@@ -91,19 +89,15 @@ if (len(Line1)>0 && hasNote) {
     translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*3+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line3, FontSize, FontType, halign=\"center\");
 }\n").unwrap();
 
-    let elems = qrcode.to_vec();
-    for val in elems {
-        if val {
+    let lines = clustering::cluster_lines(qrcode.to_vec(), width);
+
+    for line in lines {
+                
             // for each valid block a line describing a cube with standard X,Y and Z dimensione is printed
-            scadfile.write_fmt(format_args!("  translate([({}+Frame)*BlockSize, -({}+Frame+1)*BlockSize, TileThick]) cube([BlockSize, BlockSize, CodeThick]);\n", ix, iy)).unwrap();
+        if line.length>0 {
+            scadfile.write_fmt(format_args!("  translate([({}+Frame)*BlockSize, -({}+Frame+1)*BlockSize, TileThick]) cube([{}*BlockSize, BlockSize, CodeThick]);\n", line.ix, line.iy, line.length)).unwrap();
         }
 
-        // increment X and Y position (once the last column is reached)
-        ix += 1;
-        if ix == width {
-            ix = 0;
-            iy += 1;
-        }
     }
 
     // close the QR code block

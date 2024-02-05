@@ -1,3 +1,7 @@
 /target
 *.scad
 *.stl
+
+# example files
+*.txt
+*.vcard
