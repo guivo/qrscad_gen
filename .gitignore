@@ -1,6 +1,8 @@
 /target
 *.scad
 *.stl
+*.gcode
+*.3mf
 
 # example files
 *.txt

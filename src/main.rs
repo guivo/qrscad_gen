@@ -1,7 +1,7 @@
 use std::{fs::{File, self}, io::Write, path::Path};
 
 use clap::Parser;
-use qr_code::QrCode;
+use qr_code::{EcLevel, QrCode};
 
 mod clustering;
 
@@ -34,9 +34,10 @@ fn save_scad(outpath: String, qrcode: &QrCode, content: &String) {
             "//Thickness (mm) of the tile layer
 TileThick = 2.0; // .2
 //Thickness (mm) of QRCode layer
-CodeThick = 2.0; // .2
+CodeThick = 1.0; // .2
 //Unitary size (mm) of the QRCode blocks
 BlockSize = 2.0; // .2
+Tolerance = .2;
 // Fame size
 Frame = 1;
 // Has not
@@ -80,13 +81,13 @@ nElements = {}+Frame*2; //Tile width\n\n ",
     // prepare the block of the file associated with the QR code
     scadfile.write_all(b"color(\"black\") {
 if (len(Line1)>0 && hasNote) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line1, FontSize, FontType, halign=\"center\");
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH+NoteOff, TileThick-Tolerance]) linear_extrude(CodeThick+Tolerance) text(Line1, FontSize, FontType, halign=\"center\");
 }\n").unwrap();
     scadfile.write_all(b"if (len(Line2)>0 && hasNote) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*2+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line2, FontSize, FontType, halign=\"center\");
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*2+NoteOff, TileThick-Tolerance]) linear_extrude(CodeThick+Tolerance) text(Line2, FontSize, FontType, halign=\"center\");
 }\n").unwrap();
     scadfile.write_all(b"if (len(Line3)>0 && hasNote) {
-    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*3+NoteOff, TileThick]) linear_extrude(CodeThick) text(Line3, FontSize, FontType, halign=\"center\");
+    translate([nElements*BlockSize/2, -nElements*BlockSize-NoteH*3+NoteOff, TileThick-Tolerance]) linear_extrude(CodeThick+Tolerance) text(Line3, FontSize, FontType, halign=\"center\");
 }\n").unwrap();
 
     let lines = clustering::cluster_lines(qrcode.to_vec(), width);
@@ -95,7 +96,7 @@ if (len(Line1)>0 && hasNote) {
                 
             // for each valid block a line describing a cube with standard X,Y and Z dimensione is printed
         if line.length>0 {
-            scadfile.write_fmt(format_args!("  translate([({}+Frame)*BlockSize, -({}+Frame+1)*BlockSize, TileThick]) cube([{}*BlockSize, BlockSize, CodeThick]);\n", line.ix, line.iy, line.length)).unwrap();
+            scadfile.write_fmt(format_args!("  translate([({}+Frame)*BlockSize, -({}+Frame+1)*BlockSize, TileThick-Tolerance]) cube([{}*BlockSize, BlockSize, CodeThick+Tolerance]);\n", line.ix, line.iy, line.length)).unwrap();
         }
 
     }
@@ -125,6 +126,10 @@ struct Args {
     // Output file path
     #[clap(short, long, value_parser, default_value = "qrcode.scad")]
     output: String,
+
+    // Error protection level
+    #[clap(short, long, value_parser, default_value = "M")]
+    eclevel: String,
 }
 
 /**
@@ -148,9 +153,17 @@ fn main() {
     // path of the SCAD file
     let outpath = args.output;
 
+    let eclevel : EcLevel;
+    match args.eclevel.as_str() {
+        "L" => eclevel = EcLevel::L,
+        "M" => eclevel = EcLevel::M,
+        "Q" => eclevel = EcLevel::Q,
+        "H" => eclevel = EcLevel::H,
+        _ => eclevel = EcLevel::M,
+    }; 
+
     // generate the QR code
-    //TODO: check for errors
-    let qrcode = QrCode::new(content.as_bytes()).unwrap();
+    let qrcode = QrCode::with_error_correction_level(content.as_bytes(), eclevel).unwrap();
 
     // Print debug information
     let width = qrcode.width();
